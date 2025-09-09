@@ -27,7 +27,6 @@ This project is structured into Backed/ Langgraph workflow and Streamlit based U
 1. Go to the **Amazon Bedrock**.  
 2. Navigate to **API Keys** under **Discover**.  
 3. Generate a new key:  
-   - **Short-term** → for temporary testing. or  
    - **Long-term** → for production or repeated use.  
 
 ### Model Key
@@ -104,12 +103,19 @@ Replace **`ecr-image-repository-tag`** with your actual Amazon ECR registry URI 
 2. Under **Agent Runtime**, click **Host agent**  
 3. Choose **repository** and provide the ECR image URI you pushed in step 4.   
 4. Under **Advanced configurations** provide env variables
-
+```python
+AWS_BEARER_TOKEN_BEDROCK=
+REGION_NAME=
+LIGHT_WEIGHT_MODEL=
+DEFAULT_MODEL=
+```
 After setting it up you can test it on AWS testing environment.
 Basic testing payload:
 ```python 
 {"user_input": "A group of four engineers in hard hats and safety vests discuss blueprints at a construction site."} 
 ```
+
+### To setup UI go through ReadMe under alt-text-ui 
 
 ---
 
