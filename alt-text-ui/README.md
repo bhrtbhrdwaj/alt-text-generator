@@ -1,8 +1,8 @@
 # UI to demonstrate the Bedrock Agent Core Runtime API integration 
 ## Prerequisite
   You require Agent Core Runtime API
-    - ARN
-    - API Qualifier
+  - ARN
+  - API Qualifier
 
 ### 1. Create a virtual environment
 
