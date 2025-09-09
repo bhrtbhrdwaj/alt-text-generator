@@ -1,101 +1,62 @@
 # alt-text-generator
-Langgraph based GenAI project for generating alt-text
 
-# Project Setup
+Langgraph based Multi-agent project for generating alt-text.
+It contains multiple agents:
 
-## Test Environment Setup
+Complexity Analysis Agent: Categorizes the input content by complexity (Simple, Moderate, Complex).
+Alt-Text Generation Agent: Generates alt-text tailored to the complexity level.
+Evaluation & Feedback Agent: That takes the Subject Matter Experts (SMEs) review and correct the generated alt-text to ensure quality and compliance.
 
-Follow the steps below to set up and run the project:
+This project is structured into Backed/ Langgraph workflow and Streamlit based UI for demonstration
+- alt-text-workflow
+- alt-text-ui
 
-### 1. Create a virtual environment
-```bash
-python3 -m venv .venv
-```
+![Alt text](./images/ui.png)
 
-### 2. Activate the virtual environment
-- **On macOS/Linux**
-  ```bash
-  source .venv/bin/activate
-  ```
-- **On Windows**
-  ```bash
-  venv\Scripts\activate
-  ```
+# Backend setup for Agent core runtime
 
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+### Prerequisite
+- Python 3
+- Basic knowledge of AWS ECR and Agent core runtime
+- AWS CLI set up for pushing project image to AWS ECR
 
-### 4. Run the project
-```bash
-python3 test.py
-```
+### We will be using N. Virginia(us-east-1) region as per Agent Core runtime is currently availablity. 
 
+## To use Amazon Bedrock and models, you need both a **Bedrock API Key** and a **Model ID**.
 
-# Project Setup
+### Amazon Bedrock Key
+1. Go to the **Amazon Bedrock**.  
+2. Navigate to **API Keys** under **Discover**.  
+3. Generate a new key:  
+   - **Short-term** → for temporary testing.  
+   - **Long-term** → for production or repeated use.  
 
-## Test Environment Setup
+### Model Key
+1. In the **Amazon Bedrock**, go to **Model Catalogue**.  
+2. Select the model you want to use.  
+3. Go to **Model Access** and click **Request Access**.  
+4. Once your request is approved, you will see the model’s **Inference ID**.  
+5. Use this **Inference ID** as your **model key** when calling the API.
 
-Follow the steps below to set up and run the project:
-
-### 1. Create a virtual environment
-```bash
-python -m venv venv
-```
-
-### 2. Activate the virtual environment
-- **On macOS/Linux**
-  ```bash
-  source venv/bin/activate
-  ```
-- **On Windows**
-  ```bash
-  venv\Scripts\activate
-  ```
-
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run the project
-```bash
-python text.py
-```
-
----
 
 ## Run on Amazon Bedrock Core Runtime
 
-Follow these steps to containerize and push your project to AWS:
-
-### 1. Set up AWS CLI
-1. Install AWS CLI (v2 recommended):  
-   [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-   
-2. Configure AWS CLI with your credentials:
+### 1. Create ECR repository
+### 2. Configure AWS CLI with your credentials:
 ```bash
+cd alt-text-generator/alt-text-workflow
 aws configure
 ```
    Provide:
    - AWS Access Key ID  
    - AWS Secret Access Key  
    - Default region (e.g., `us-east-1`)  
-   - Output format (`json`, `text`, or `table`)  
-
-3. Verify configuration:
-```bash
-aws sts get-caller-identity
-```
-
-### 2. Create an Access Key
-1. Log in to the **AWS Management Console**.  
-2. Navigate to **IAM → Users → Your User → Security Credentials**.  
-3. Under **Access keys**, click **Create access key**.  
-4. Download the key file or copy the Access Key ID and Secret Access Key.  
-   *(Use these when running `aws configure`.)*
-
+   - Output format (`json`, `text`, or `table`)
+   Create Pass key:
+   - Generate key using: gpg --full-generate-key
+   - List keys: gpg --list-keys
+   - Select the key using email: pass init "{email_id}"
+ 
 ### 3. Authenticate Docker with ECR
 ```bash
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ecr-image-repository
@@ -110,7 +71,7 @@ Replace **`ecr-image-repository`** with your actual Amazon ECR registry URI, e.g
 ```bash
 docker buildx build \
   --platform linux/arm64 \
-  -t ecr-image-repository/agent-core/alt-text:latest \
+  -t ecr-image-repository-tag \
   --push .
 ```
 
@@ -126,5 +87,39 @@ docker buildx build \
 ### 5. Host on Amazon Bedrock Core Runtime
 1. Navigate to **Amazon Bedrock AgentCore**  
 2. Under **Agent Runtime**, click **Host agent**  
-3. Choose **image** and provide the ECR image URI you pushed in step 4.   
+3. Choose **repository** and provide the ECR image URI you pushed in step 4.   
 4. Under **Advanced configurations** provide env variables
+
+After setting it up you can test it on AWS testing environment.
+Basic testing payload:
+```python 
+{"user_input": "A group of four engineers in hard hats and safety vests discuss blueprints at a construction site."} 
+```
+
+---
+
+## Migrate Existing LangGraph Project to Agent Core Setup
+
+Follow these steps to migrate your existing LangGraph project:
+
+### 1. Initialize the Agent Core App
+```python
+from bedrock_agentcore.runtime import BedrockAgentCoreApp
+
+app = BedrockAgentCoreApp()
+```
+
+### 2. Define a function and annotate as an entrypoint
+```python
+@app.entrypoint
+def invoke_graph(input_data):
+    # Your graph invocation logic here
+    return {"result": "processed"}
+```
+
+### 3. Run the app
+```python
+app.run()
+```
+
+> **Reference:** see `main.py` for a full working example.
