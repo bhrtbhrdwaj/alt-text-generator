@@ -2,10 +2,9 @@
 
 Langgraph based Multi-agent project for generating alt-text.
 It contains multiple agents:
-
-Complexity Analysis Agent: Categorizes the input content by complexity (Simple, Moderate, Complex).
-Alt-Text Generation Agent: Generates alt-text tailored to the complexity level.
-Evaluation & Feedback Agent: That takes the Subject Matter Experts (SMEs) review and correct the generated alt-text to ensure quality and compliance.
+- Complexity Analysis Agent: Categorizes the input content by complexity (Simple, Moderate, Complex).
+- Alt-Text Generation Agent: Generates alt-text tailored to the complexity level.
+- Evaluation & Feedback Agent: That takes the Subject Matter Experts (SMEs) review and correct the generated alt-text to ensure quality and compliance.
 
 This project is structured into Backed/ Langgraph workflow and Streamlit based UI for demonstration
 - alt-text-workflow
