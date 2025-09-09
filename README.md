@@ -27,23 +27,23 @@ This project is structured into Backed/ Langgraph workflow and Streamlit based U
 1. Go to the **Amazon Bedrock**.  
 2. Navigate to **API Keys** under **Discover**.  
 3. Generate a new key:  
-   - **Short-term** → for temporary testing.  
+   - **Short-term** → for temporary testing. or  
    - **Long-term** → for production or repeated use.  
 
 ### Model Key
 1. In the **Amazon Bedrock**, go to **Model Catalogue**.  
 2. Select the model you want to use.  
 3. Go to **Model Access** and click **Request Access**.  
-4. Once your request is approved, you will see the model’s **Inference ID**.  
-5. Use this **Inference ID** as your **model key** when calling the API.
+4. Once your request is approved, you will see the model’s **Inference ID** under **Cross-region inference**.  
+5. Use this **Inference profile ID** as your **model key** when calling the API.
 
 
 ## Run on Amazon Bedrock Core Runtime
 
-### 1. Create ECR repository
+### 1. Create Amazon ECR repository
 ### 2. Configure AWS CLI with your credentials:
 ```bash
-cd alt-text-generator/alt-text-workflow
+cd alt-text-workflow
 aws configure
 ```
    Provide:
@@ -67,6 +67,20 @@ Replace **`ecr-image-repository`** with your actual Amazon ECR registry URI, e.g
 ```
 
 ### 4. Build and Push Docker Image (ARM64)
+
+Registers all the emulators (including arm64) with your Docker engine.
+```bash
+docker run --rm --privileged tonistiigi/binfmt --install all
+```
+
+Recreate a buildx builder with emulation
+```bash
+docker buildx create --use --name multiarch
+docker buildx inspect --bootstrap
+```
+Make sure it says Platforms: linux/amd64, linux/arm64 in the output.
+
+Build for ARM64 and push to ECR
 ```bash
 docker buildx build \
   --platform linux/arm64 \
@@ -77,6 +91,8 @@ docker buildx build \
 - `--platform linux/arm64` → ensures compatibility with AWS Graviton/Bedrock runtime  
 - `-t` → tags the image with your ECR repo name and project identifier  
 - `--push` → pushes the image directly to ECR  
+
+Replace **`ecr-image-repository-tag`** with your actual Amazon ECR registry URI tag, e.g.:  
 
 ---
 
