@@ -3,6 +3,7 @@
   You require Agent Core Runtime API
   - ARN
   - API Qualifier
+Go to **Amazon Bedrock AgentCore** -> **Agent Runtime** -> **your-agent** under **View invocation code**
 
 ### 1. Create a virtual environment
 
