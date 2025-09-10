@@ -8,4 +8,5 @@ def agent_invocation(payload, context):
     response = create_alt_text_workflow().invoke(payload)
     return response
 
-app.run()
+if __name__ == "__main__":
+    app.run()

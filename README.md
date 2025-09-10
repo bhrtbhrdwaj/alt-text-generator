@@ -16,8 +16,7 @@ This project is structured into Backed/ Langgraph workflow and Streamlit based U
 
 ### Prerequisite
 - Python 3
-- Basic knowledge of AWS ECR and Agent core runtime
-- AWS CLI set up for pushing project image to AWS ECR
+- AWS CLI set up for pushing project Agent Core Runtime
 
 ### We will be using N. Virginia(us-east-1) region as per Agent Core runtime is currently availablity. 
 
@@ -37,110 +36,14 @@ This project is structured into Backed/ Langgraph workflow and Streamlit based U
 5. Use this **Inference profile ID** as your **model key** when calling the API.
 
 
-## Run on Amazon Bedrock Core Runtime
-
-### 1. Create Amazon ECR repository
-### 2. Configure AWS CLI with your credentials:
+### Configure AWS CLI with your credentials:
+Credhelper extension: https://chromewebstore.google.com/detail/cloudkeeper-credential-he/mpljkpamdjfdjmfcpnlmhhakbjigjjcd?hl=en-US&pli=1
+- Copy aws creds
+- Open a terminal and paste the cred 
 ```bash
-cd alt-text-workflow
-aws configure
+cd ~/.aws
+vim credentials
 ```
-   Provide:
-   - AWS Access Key ID  
-   - AWS Secret Access Key  
-   - Default region (e.g., `us-east-1`)  
-   - Output format (`json`, `text`, or `table`)
-   Create Pass key:
-   - Generate key using: gpg --full-generate-key
-   - List keys: gpg --list-keys
-   - Select the key using email: pass init "{email_id}"
- 
-### 3. Authenticate Docker with ECR
-```bash
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ecr-image-repository
-```
+- Also provide **region=use-east-1*** in the cred file
 
-Replace **`ecr-image-repository`** with your actual Amazon ECR registry URI, e.g.:  
-```
-123456789012.dkr.ecr.us-east-1.amazonaws.com
-```
-
-### 4. Build and Push Docker Image (ARM64)
-
-Registers all the emulators (including arm64) with your Docker engine.
-```bash
-docker run --rm --privileged tonistiigi/binfmt --install all
-```
-
-Recreate a buildx builder with emulation
-```bash
-docker buildx create --use --name multiarch
-docker buildx inspect --bootstrap
-```
-Make sure it says Platforms: linux/amd64, linux/arm64 in the output.
-
-Build for ARM64 and push to ECR
-```bash
-docker buildx build \
-  --platform linux/arm64 \
-  -t ecr-image-repository-tag \
-  --push .
-```
-
-- `--platform linux/arm64` → ensures compatibility with AWS Graviton/Bedrock runtime  
-- `-t` → tags the image with your ECR repo name and project identifier  
-- `--push` → pushes the image directly to ECR  
-
-Replace **`ecr-image-repository-tag`** with your actual Amazon ECR registry URI tag, e.g.:  
-
----
-
-✅ Once pushed, you can use this image in Amazon Bedrock Core Runtime or ECS task definitions.
-
-
-### 5. Host on Amazon Bedrock Core Runtime
-1. Navigate to **Amazon Bedrock AgentCore**  
-2. Under **Agent Runtime**, click **Host agent**  
-3. Choose **repository** and provide the ECR image URI you pushed in step 4.   
-4. Under **Advanced configurations** provide env variables
-```python
-AWS_BEARER_TOKEN_BEDROCK=
-REGION_NAME=
-LIGHT_WEIGHT_MODEL=
-DEFAULT_MODEL=
-```
-After setting it up you can test it on AWS testing environment.
-Basic testing payload:
-```python 
-{"user_input": "A group of four engineers in hard hats and safety vests discuss blueprints at a construction site."} 
-```
-
-### To setup UI go through ReadMe under alt-text-ui 
-
----
-
-## Migrate Existing LangGraph Project to Agent Core Setup
-
-Follow these steps to migrate your existing LangGraph project:
-
-### 1. Initialize the Agent Core App
-```python
-from bedrock_agentcore.runtime import BedrockAgentCoreApp
-
-app = BedrockAgentCoreApp()
-```
-
-### 2. Define a function and annotate as an entrypoint
-```python
-@app.entrypoint
-def invoke_graph(input_data):
-    # Your graph invocation logic here
-    return {"result": "processed"}
-```
-
-### 3. Run the app
-```python
-app.run()
-```
-
-> **Reference:** see `main.py` for a full working example.
+### Refer to alt-text-workflow's readme to push image to Agent Core Runtime
